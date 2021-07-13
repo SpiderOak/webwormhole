@@ -13,4 +13,4 @@ require (
 	rsc.io/qr v0.2.0
 )
 
-replace webwormhole.io => github.com/SpiderOak/webwormhole
+replace webwormhole.io => ./webwormhole
