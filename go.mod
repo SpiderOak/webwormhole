@@ -1,4 +1,4 @@
-module github.com/SpiderOak/webwormhole
+module webwormhole.io
 
 go 1.13
 
@@ -12,3 +12,5 @@ require (
 	nhooyr.io/websocket v1.8.5
 	rsc.io/qr v0.2.0
 )
+
+replace webwormhole.io => github.com/SpiderOak/webwormhole
