@@ -4,7 +4,7 @@
 // related packages in order to run in browser.
 //
 // All functions are added to the webwormhole global object.
-package main
+package web
 
 import (
 	"crypto/rand"
@@ -182,7 +182,7 @@ func fingerprint(_ js.Value, args []js.Value) interface{} {
 	return dst
 }
 
-func main() {
+func Main() {
 	js.Global().Set("webwormhole", map[string]interface{}{
 		"start":       js.FuncOf(start),
 		"finish":      js.FuncOf(finish),
