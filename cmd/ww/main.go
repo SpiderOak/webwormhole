@@ -14,8 +14,8 @@ import (
 	"strconv"
 
 	"rsc.io/qr"
-	"webwormhole.io/wordlist"
-	"webwormhole.io/wormhole"
+	"github.com/SpiderOak/webwormhole/wordlist"
+	"github.com/SpiderOak/webwormhole/wormhole"
 )
 
 var subcmds = map[string]func(args ...string){

@@ -18,7 +18,7 @@ import (
 	"golang.org/x/crypto/hkdf"
 	"golang.org/x/crypto/nacl/secretbox"
 	"rsc.io/qr"
-	"webwormhole.io/wordlist"
+	"github.com/SpiderOak/webwormhole/wordlist"
 )
 
 // state is the PAKE state so far.

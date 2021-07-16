@@ -26,7 +26,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"golang.org/x/crypto/acme/autocert"
 	"nhooyr.io/websocket"
-	"webwormhole.io/wormhole"
+	"github.com/SpiderOak/webwormhole/wormhole"
 )
 
 // slotTimeout is the the maximum amount of time a client is allowed to
