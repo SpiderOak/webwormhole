@@ -4,7 +4,7 @@
 // related packages in order to run in browser.
 //
 // All functions are added to the webwormhole global object.
-package web
+package main
 
 import (
 	"crypto/rand"
@@ -15,10 +15,10 @@ import (
 	"syscall/js"
 
 	"filippo.io/cpace"
+	"github.com/SpiderOak/webwormhole/wordlist"
 	"golang.org/x/crypto/hkdf"
 	"golang.org/x/crypto/nacl/secretbox"
 	"rsc.io/qr"
-	"github.com/SpiderOak/webwormhole/wordlist"
 )
 
 // state is the PAKE state so far.
@@ -182,7 +182,7 @@ func fingerprint(_ js.Value, args []js.Value) interface{} {
 	return dst
 }
 
-func Main() {
+func main() {
 	js.Global().Set("webwormhole", map[string]interface{}{
 		"start":       js.FuncOf(start),
 		"finish":      js.FuncOf(finish),
