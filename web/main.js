@@ -19,15 +19,14 @@ let signalserver = new URL(location.href);
 // peerconnection is the active connection's WebRTC object. Global to help debugging.
 let peerconnection;
 // UI elements.
-let filepicker;
 let dialButton;
 let phraseInput;
-let clipboardInput;
 let mainForm;
 let qrImg;
 let transfersList;
 let infoBox;
 let autocompleteBox;
+let inputLabel;
 class DataChannelWriter {
     constructor(dc) {
         this.chunksize = 32 << 10;
@@ -123,6 +122,26 @@ class Upload {
             return;
         }
     }
+}
+
+//This function is pending to be wired to the file download
+function download() {
+    console.log("DOWNLOADING");
+}
+//This function will insert a list item with the desired UI according to the figma designs
+function insertListItem(title, data, imageSrc) {
+    if (transfersList === null || transfersList === undefined) {
+        console.error("TRANSFER LIST", "was not initialized");
+        return;
+    }
+    const fileImg = document.getElementById("file-image");
+    const fileTitle = document.getElementById("file-title");
+    const fileData = document.getElementById("file-data");
+    const downloadImg = document.getElementById("download-button");
+    fileImg.src = imageSrc ? imageSrc : "word_icon.png";
+    fileTitle.textContent = title;
+    fileData.textContent = data;
+    downloadImg.addEventListener("click", download);
 }
 class ServiceWorkerDownload {
     constructor(sw, header) {
@@ -239,14 +258,6 @@ class ArrayBufferDownload {
         this.a.href = URL.createObjectURL(blob);
         this.a.download = this.header.name;
         this.a.click();
-    }
-}
-function pick() {
-    if (!filepicker.files) {
-        return;
-    }
-    for (let i = 0; i < filepicker.files.length; i++) {
-        sendfile(filepicker.files[i]);
     }
 }
 function drop(e) {
@@ -438,7 +449,7 @@ async function connect() {
 }
 function waiting() {
     infoBox.innerText =
-        "Waiting for the other side to join by typing the wormhole phrase, opening this URL, or scanning the QR code.";
+        "Waiting for the other side to join by typing the airlock phrase, opening this URL, or scanning the QR code.";
 }
 function dialling() {
     state = "dialling";
@@ -446,9 +457,8 @@ function dialling() {
     document.body.classList.add("dialling");
     document.body.classList.remove("connected");
     document.body.classList.remove("disconnected");
-    filepicker.disabled = false;
-    clipboardInput.disabled = false || hacks.noclipboardapi;
     dialButton.disabled = true;
+    dialButton.hidden = true;
     phraseInput.readOnly = true;
     document.body.addEventListener("paste", pasteEvent);
 }
@@ -467,16 +477,16 @@ function disconnected(reason) {
     document.body.style.backgroundColor = "";
     // TODO better error types or at least hoist the strings to consts.
     if (reason === "bad key") {
-        infoBox.innerText = "Wrong wormhole phrase.";
+        infoBox.innerText = "Wrong airlock phrase.";
     }
     else if (reason === "bad code") {
-        infoBox.innerText = "Not a valid wormhole phrase.";
+        infoBox.innerText = "Not a valid airlock phrase.";
     }
     else if (reason === "no such slot") {
-        infoBox.innerText = "No such slot. The wormhole might have expired.";
+        infoBox.innerText = "No such slot. The airlock might have expired.";
     }
     else if (reason === "timed out") {
-        infoBox.innerText = "Wormhole expired.";
+        infoBox.innerText = "Airlock expired.";
     }
     else if (reason === "could not connect to signalling server") {
         infoBox.innerText =
@@ -501,10 +511,9 @@ function disconnected(reason) {
     document.body.classList.remove("dialling");
     document.body.classList.remove("connected");
     document.body.classList.add("disconnected");
-    filepicker.disabled = true;
-    clipboardInput.disabled = true;
     document.body.removeEventListener("paste", pasteEvent);
     dialButton.disabled = false;
+    dialButton.hidden = false;
     phraseInput.readOnly = false;
     phraseInput.value = "";
     codechange();
@@ -524,6 +533,14 @@ function unhighlight() {
 function preventdefault(e) {
     e.preventDefault();
     e.stopPropagation();
+}
+
+function displayInputLabel() {
+    if (state === "disconnected" && document.activeElement === phraseInput) {
+        inputLabel.classList.remove("invisible");
+    } else {
+        inputLabel.classList.add("invisible");
+    }
 }
 async function copyurl() {
     await navigator.clipboard.writeText(signalserver.href);
@@ -553,10 +570,14 @@ function hashchange() {
 }
 function codechange() {
     if (phraseInput.value === "") {
-        dialButton.value = "CREATE WORMHOLE";
+        dialButton.value = "Get file";
+        dialButton.disabled = true;
+        dialButton.hidden = false;
     }
     else {
-        dialButton.value = "JOIN WORMHOLE";
+        dialButton.value = "Get file";
+        dialButton.disabled = false;
+        dialButton.hidden = false;
     }
 }
 function autocompletehint() {
@@ -701,24 +722,23 @@ async function init() {
     // Detect Browser Quirks.
     browserhacks();
     if (hacks.ext) {
-        signalserver = new URL("https://webwormhole.io/");
+        signalserver = new URL("https://quickcc-staging.cloud.spideroak-inc.com/");
     }
     let wasmURL = "webwormhole.wasm";
     if (hacks.chromeext) {
         wasmURL = chrome.runtime.getURL("webwormhole.wasm");
     }
     // Wait for the ServiceWorker, WebAssembly, and DOM to be ready.
-    await Promise.all([domready(), swready(), wasmready(wasmURL)]);
+    await Promise.all([domready(), /*swready(), wasmready(wasmURL)*/]);
     // Wireup HTML.
-    filepicker = document.getElementById("filepicker");
     dialButton = document.getElementById("dial");
     phraseInput = document.getElementById("magiccode");
-    clipboardInput = document.getElementById("clipboard");
     mainForm = document.getElementById("main");
     qrImg = document.getElementById("qr");
     transfersList = document.getElementById("transfers");
     infoBox = document.getElementById("info");
     autocompleteBox = document.getElementById("autocomplete");
+    inputLabel = document.getElementById("input-label");
     // Friendly error message and bail out if things are clearely not going to work.
     if (hacks.browserunsupported) {
         infoBox.innerText =
@@ -733,8 +753,8 @@ async function init() {
     phraseInput.addEventListener("input", codechange);
     phraseInput.addEventListener("keydown", autocomplete);
     phraseInput.addEventListener("input", autocompletehint);
-    filepicker.addEventListener("change", pick);
-    clipboardInput.addEventListener("click", pasteClipboard);
+    phraseInput.addEventListener("focus", displayInputLabel);
+    phraseInput.addEventListener("blur", displayInputLabel);
     mainForm.addEventListener("submit", preventdefault);
     mainForm.addEventListener("submit", connect);
     qrImg.addEventListener("dblclick", copyurl);
@@ -752,9 +772,13 @@ async function init() {
         phraseInput.value = location.hash.substring(1);
     }
     codechange(); // User might have typed something while we were loading.
-    dialButton.disabled = false;
     if (!hacks.noautoconnect && phraseInput.value !== "") {
+        dialButton.disabled = false;
+        dialButton.hidden = false;
         connect();
+    } else {
+        dialButton.disabled = true;
+        dialButton.hidden = false;
     }
 }
 init();

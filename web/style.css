@@ -11,6 +11,11 @@
 	--dialling: #8c782a;
 	--connected: #c1ffab;
 	--highlight: #8464a4;
+	--crossclave-cream-light: #fff1e4;
+	--crossclave-border-gray: #141923;
+	--crossclave-button-background: #ef6c56;
+	--crossclave-text-gray: #273143;
+	--crossclave-text-light-gray: #5d6575;
 
 	/* Palette of background colours chosen by the session key. */
 	--palette-0: #c1ffab; /* bright green */
@@ -23,6 +28,16 @@
 	--palette-7: #e796ea; /* purple */
 }
 
+@font-face {
+font-family: "Graphik";
+src: url(GraphikRegular.otf);
+}
+
+@font-face {
+font-family: "Overpass Mono";
+src: url(OverpassMono-Bold.ttf);
+}
+
 html {
 	box-sizing: border-box;
 	margin: 0;
@@ -31,75 +46,25 @@ html {
 
 body {
 	align-items: center;
-	background-image: url("space.svg");
-	background-color: var(--purple);
-	color: var(--white);
+	background-color: var(--crossclave-cream-light);
 	display: flex;
 	flex-direction: column;
 	font-size: 18px;
-	font-family: Arial, Helvetica, sans-serif;
-	justify-content: center;
-	height: 100vh;
+	justify-content: flex-start;
 	margin: 0;
 	padding: 0;
-	box-shadow: inset 0 0 150px -50px var(--black);
-	transition: background-color 0.3s;
-}
-
-body.disconnected,
-body.error {
-	background-color: var(--error);
-}
-
-body.dialling {
-	background-color: var(--dialling);
-}
-
-body.connected {
-	background-color: var(--connected);
-}
-
-#footer {
-	font-size: small;
-	text-align: left;
-}
-
-.connected #footer {
-	display: none;
-}
-
-#footer ul {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-#footer li {
-	margin: 4px 0;
 }
 
 #main {
 	display: flex;
 	align-items: center;
 	flex-flow: column;
-	justify-content: space-between;
+	justify-content: flex-start;
 	padding: 1em 0;
 	overflow: auto;
 	text-align: center;
-	box-shadow: 0px 0px 75px 0px var(--grey-tint);
-	background: var(--purple);
-	border: 4px solid transparent;
+	background: var(--crossclave-cream-light);
 	box-sizing: border-box;
-}
-
-.connected #main {
-	justify-content: space-between;
-	transition: all 1s;
-}
-
-.highlight #main {
-	background-color: var(--highlight);
-	border: 4px dashed var(--white);
 }
 
 #prompt {
@@ -108,78 +73,133 @@ body.connected {
 	flex-flow: column;
 }
 
-#prompt input {
-	margin: 4px;
-}
-
 .connected #prompt p,
 .dialling #prompt p {
 	display: none;
 }
 
-#info {
+#header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	align-self: center;
+}
+
+#header .header-logo {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+#spideroak {
+	font-family: "Graphik";
 	margin: 16px 8px;
-	font-size: 18px;
+	font-size: 22px;
 	padding: 8px 0;
 	text-align: center;
+	color: black;
+	font-weight: bold;
 }
 
-.connected #info {
-	display: none;
+#hint {
+	font-family: "Graphik";
+	margin-left: 32px;
+	margin-right: 32px;
+	font-size: 19px;
+	text-align: center;
+	color: black;
 }
 
-#top {
-	display: none;
-}
-
-.connected #top {
-	display: unset;
-}
-
-#filepicker {
-	display: none;
-}
-
-#filepicker-wrap {
-	display: inline-block;
-}
+/* LIST STYLES */
 
 #transfers {
 	display: none;
 	list-style-type: none;
 	padding-left: 0;
-	margin: 0;
+	margin-top: 10px;
 	width: 80%;
 	max-width: 400px;
 }
 
-.connected #transfers,
+.disconnected #transfers,
+.error #transfers,
 .dialling #transfers {
+	display: none;
+}
+
+.connected #transfers {
 	display: unset;
 }
 
+#transfers div {
+	margin-left: 8px;
+	display: flex;
+	flex-direction: column;
+	align-self: auto;
+	flex: 1;
+}
+
 #transfers li {
-	border-color: var(--grey);
-	border-style: solid;
-	border-width: 1px;
-	border-radius: 4px;
-	background-color: var(--grey-tint);
+	display: flex;
+	flex-direction: row;
+	border: none;
+	border-radius: 8px;
+	background-color: var(--white);
 	margin: 5px;
 	padding: 8px;
-	box-shadow: 0px 0px 4px 0px var(--grey-tint);
+	box-shadow: -4px 2px 0px #000000;
+}
+
+#transfers img {
+	height: 20px;
+	width: 20px;
+	align-self: center;
+	align-items: center;
+	margin-right: 20px;
+}
+
+#transfers span {
+	font-family: "Graphik", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	text-align: start;
+	margin-top: 8px;
+	color: var(--crossclave-text-light-gray);
+}
+
+#transfers span.file-text {
+	font-size: 15px;
+	color: var(--crossclave-text-gray);
+	-webkit-line-clamp: 2;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 #transfers li.upload {
-	list-style-type: "↑ ";
+	list-style-type: "Ã¢â€ â€˜ ";
 }
 
 #transfers li.download {
-	list-style-type: "↓ ";
+	list-style-type: "Ã¢â€ â€œ ";
 }
 
 #transfers li.pending {
 	list-style-type: "... ";
 }
+
+#transfers img.file {
+	height: 38px;
+	width: 38px;
+	align-self: center;
+	align-items: center;
+	padding: 8px;
+	margin: 8px;
+	border: 0.5px solid #c9cbd0;
+	box-sizing: border-box;
+	border-radius: 2px;
+}
+
+/* END LIST STYLES */
 
 #qr {
 	margin: 4px;
@@ -190,17 +210,53 @@ body.connected {
 }
 
 .dialling #qr[src] {
-	display: unset;
+	display: inherit;
+}
+
+.group {
+	position: relative;
+}
+
+#input-label {
+	font-family: "Graphik", Arial, Helvetica, sans-serif;
+	font-weight: 600;
+	font-size: 12px;
+	line-height: 12px;
+	padding: 0 0.2em;
+	position: absolute;
+	top: 1.2em;
+	left: 4em;
+	padding-left: 8px;
+	padding-right: 8px;
+	background-color: var(--crossclave-cream-light);
+}
+
+.dialling #input-label,
+.error #input-label,
+.connected #input-label {
+	display: none;
+	visibility: hidden;
+}
+
+.invisible{
+	display: none;
+	visibility: hidden;
 }
 
 #magiccode {
-	color: var(--yellow);
-	background: var(--yellow-tint);
-	border: 2px solid var(--yellow);
-	border-radius: 10px;
-	font-weight: bold;
-	margin: 4px;
+	color: var(--crossclave-button-background);
+	background: var(--crossclave-cream-light);
+	border: 1px solid var(--crossclave-border-gray);
+	border-radius: 4px;
+	font-family: "Overpass Mono", Arial, Helvetica, sans-serif;
+	height: 32px;
+	width: 300px;
 	padding: 16px;
+	margin-top: 20px;
+	margin-left: 32px;
+	margin-right: 32px;
+	font-size: 16px;
+	line-height: 24px;
 	text-align: center;
 	text-transform: uppercase;
 }
@@ -209,55 +265,84 @@ body.connected {
 	opacity: 0.2;
 }
 
+.dialling #magiccode,
+.connected #magiccode,
 .error #magiccode {
 	display: none;
 }
 
+.disconnected #magiccode {
+	display: unset;
+}
+
+div input[type="text"]:focus {
+	outline: 0;
+}
+
+::placeholder {
+	color: var(--crossclave-text-gray);
+	font-size: 15px;
+	text-transform: none;
+	font-family: "Graphik", Arial, Helvetica, sans-serif;
+}
+
 #dial {
-	text-transform: uppercase;
+	margin-top: 12px;
+	width: 140px;
 }
 
 .connected #dial,
+.dialling #dial,
 .error #dial {
 	display: none;
 }
 
-#autocomplete {
-	height: 1em;
-	opacity: 0.5;
+#info {
+	color: var(--crossclave-border-gray);
+	align-self: center;
+	text-align: center;
+	font-size: 19px;
+	font-family: "Graphik", Arial, Helvetica, sans-serif;
+	line-height: 20px;
+	margin-top: 40px;
+	display: none;
 }
 
-.connected #autocomplete,
-.dialling #autocomplete {
+.disconnected #info,
+.connected #info {
 	display: none;
+}
+
+.dialling #info,
+.error #info {
+	display: unset;
 }
 
 .button {
 	-webkit-appearance: none;
 	appearance: none;
-	background: var(--yellow);
-	border-radius: 10px;
-	border: none;
-	box-shadow: 0px 0px 5px 0px var(--grey-tint);
-	color: var(--purple);
-	font-weight: bold;
-	font-size: medium;
+	background: var(--crossclave-button-background);
+	border-radius: 16px;
+	color: var(--white);
+	font-size: 18px;
+	text-transform: none;
+	height: 48px;
+	font-family: "Graphik", Arial, Helvetica, sans-serif;
 	cursor: pointer;
-	margin: 8px 0px;
-	padding: 16px;
+	margin: 12px 0px;
 	transition: all 0.2s ease 0s;
 }
 
 .button:hover {
-	box-shadow: 0px 0px 5px 0px var(--grey-tint);
+	box-shadow: 0px 0px 5px 0px var(--crossclave-button-background);
 	opacity: 0.75;
 }
 
 .button:disabled,
 .button:disabled:hover {
-	background: var(--grey);
-	box-shadow: 0px 0px 5px 0px var(--grey-tint);
-	color: var(--grey-light);
+	background: var(--crossclave-button-background);
+	box-shadow: 0px 0px 5px 0px var(--crossclave-button-background);
+	opacity: 0.3;
 	cursor: unset;
 	letter-spacing: unset;
 	transition: all 0.2s ease 0s;
@@ -278,7 +363,6 @@ a:visited:hover {
 	border-bottom: 1px solid;
 }
 
-
 #main {
 	height: min-content;
 	min-height: 200px;
@@ -287,11 +371,13 @@ a:visited:hover {
 
 @media only screen and (min-width: 700px) {
 	#main {
-		width: min-content;
-		min-width: 400px;
-		height: 100%;
+			width: min-content;
+			min-width: 400px;
+			height: 100%;
 	}
-	#info {
-		margin-top: 10vh;
-	}
+}
+
+#receive-image {
+	height: 195px;
+	width: 250px;
 }

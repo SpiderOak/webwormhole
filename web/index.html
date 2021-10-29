@@ -13,28 +13,48 @@
 <script src="wasm_exec.js"></script>
 <script src="ww.js"></script>
 <script src="main.js"></script>
-<title>WebWormhole</title>
+<title>SpiderOak Airlock</title>
 <body>
 <form id="main" role="main">
-<p id="info">WebWormhole lets you send files from one computer to another.</p>
-<div id="top">
-Drag and drop, <label id="filepicker-wrap" class="button">OPEN<input type="file" id="filepicker" disabled /></label>, or <input type="button" id="clipboard" class="button" value="PASTE" disabled /> files and text to send.
+<div id="header">
+  <img class="header-logo" src="logo.svg" alt="CrossClave" />
 </div>
-<ul id="transfers"></ul>
+<p id="hint">Recieve a file with end-to-end<br />encrypted magic</p>
+<img id="receive-image" src="receive-file.png" alt="CrossClave" />
+<ul id="transfers">
+  <li>
+    <img id="file-image" class="file" src="word_icon.png" alt="File"/>
+    <div>
+      <span id="file-title" class="file-text">Word Document Test</span>
+      <span id="file-data">246 mb, doc.x</span>
+    </div>
+    <img id="download-button" src="download_icon.png" alt="download..."/>
+  </li>
+</ul>
 <div id="prompt">
-<p>Type a wormhole's phrase to join it, or leave empty to create a new one.</p>
 <img id="qr" />
-<input type="text" id="magiccode" autocomplete="off" autofocus title="wormhole phrase" placeholder="wormhole phrase" />
-<input type="submit" id="dial" class="button" value="LOADING..." disabled />
+<div class="group">
+  <label id="input-label">SECRET PHRASE</label>
+  <input
+    type="text"
+    id="magiccode"
+    autocomplete="off"
+    autofocus
+    title="secret phrase"
+    placeholder="Type a secret phrase to start…"
+  />
+</div>
+<input
+  type="submit"
+  id="dial"
+  class="button"
+  value="Get file"
+  disabled
+/>
+</div>
 <span id="autocomplete"></span>
 </div>
-<div id="footer">
-<ul>
-<li>source: <a href="https://github.com/saljam/webwormhole">github.com/saljam/webwormhole</a></li>
-<li>feedback: <a href="mailto:s@lj.am">s@lj.am</a> <a href="https://twitter.com/_saljam">@_saljam</a></li>
-<li>install: <a href="https://addons.mozilla.org/firefox/addon/webwormhole/">firefox</a> <a href="https://chrome.google.com/webstore/detail/webwormhole/jhombkhjanncdalcbcahinpjoacaiidn">chrome</a> <a href="https://pkg.go.dev/webwormhole.io/cmd/ww">command line</a></li>
-</ul>
-</div>
+<span id="info">Connecting...</span>
 </form>
 </body>
 </html>
