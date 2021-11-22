@@ -29,11 +29,6 @@
 }
 
 @font-face {
-font-family: "Graphik";
-src: url(assets/fonts/GraphikRegular.otf);
-}
-
-@font-face {
 font-family: "Overpass Mono";
 src: url(assets/fonts/OverpassMono-Bold.ttf);
 }
