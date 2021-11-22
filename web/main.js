@@ -374,7 +374,7 @@ async function connect() {
 }
 
 function waiting() {
-	document.getElementById("info").innerText = "Waiting for the other side to join by typing the wormhole phrase, opening this URL, or scanning the QR code.";
+	document.getElementById("info").innerText = "Waiting for the other side to join by typing the Airlock phrase, opening this URL, or scanning the QR code.";
 }
 
 function dialling() {
@@ -404,23 +404,23 @@ function disconnected(reason) {
 
 	// TODO better error types or at least hoist the strings to consts.
 	if (reason === "bad key") {
-		document.getElementById("info").innerText = "Wrong wormhole phrase.";
+		document.getElementById("info").innerText = "Wrong Airlock phrase.";
 	} else if (reason === "bad code") {
-		document.getElementById("info").innerText = "Not a valid wormhole phrase.";
+		document.getElementById("info").innerText = "Not a valid Airlock phrase.";
 	} else if (reason === "no such slot") {
-		document.getElementById("info").innerText = "No such slot. The wormhole might have expired.";
+		document.getElementById("info").innerText = "No such slot. The phrase might have expired.";
 	} else if (reason === "timed out") {
 		document.getElementById("info").innerText = "Wormhole expired.";
 	} else if (reason === "could not connect to signalling server") {
 		document.getElementById("info").innerText = "Could not reach the signalling server. Refresh page and try again.";
 
 	} else if (reason === "webrtc connection closed") {
-		document.getElementById("info").innerText = "Disconnected.";
+		document.getElementById("info").innerText = "File successfully downloaded.";
 	} else if (reason === "webrtc connection failed") {
 		document.getElementById("info").innerText = "Network error.";
 
 	} else if (reason === "datachannel closed") {
-		document.getElementById("info").innerText = "Disconnected.";
+		document.getElementById("info").innerText = "File successfully downloaded.";
 	} else if (reason === "webrtc connection failed") {
 		document.getElementById("info").innerText = "Network error.";
 
