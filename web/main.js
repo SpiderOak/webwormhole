@@ -545,11 +545,7 @@ function codechange() {
 }
 
 function onRetry() {
-	const docBody = document.body;
-	docBody.classList.remove("disconnected");
-	docBody.classList.remove("error");
-	console.log("REMOVED DISCONNECTED");
-	document.getElementById("retry").classList.add("invisible");
+	location.reload();
 }
 
 function displayTryAgain(buttonText) {

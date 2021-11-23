@@ -224,12 +224,10 @@ body {
 
 .visible {
 	display: unset;
-	visibility: visible;
 }
 
-.invisible{
+.invisible {
 	display: none;
-	visibility: hidden;
 }
 
 .collapsed {
