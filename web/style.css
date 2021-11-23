@@ -222,9 +222,18 @@ body {
 	visibility: hidden;
 }
 
+.visible {
+	display: unset;
+	visibility: visible;
+}
+
 .invisible{
 	display: none;
 	visibility: hidden;
+}
+
+.collapsed {
+	display: none !important;
 }
 
 #list-item-container {
@@ -370,4 +379,29 @@ a:visited:hover {
 #receive-image {
 	height: 195px;
 	width: 250px;
+}
+
+.retry {
+	color: var(--crossclave-button-background);
+	border: none;
+	background: none;
+	align-self: center;
+	text-align: center;
+	font-size: 19px;
+	font-family: Arial, Helvetica, sans-serif;
+	line-height: 20px;
+	text-transform: none;
+	cursor: pointer;
+	margin: 12px 0px;
+	padding: 8px;
+}
+
+.retry:hover {
+	box-shadow: 0px 0px 5px 0px var(--crossclave-button-background);
+	transition: all 0.2s ease 0s;
+	border-radius: 8px;
+}
+
+.rect-class {
+	fill: url("#fill");
 }

@@ -379,7 +379,6 @@ function waiting() {
 
 function dialling() {
 	document.getElementById("info").innerText = "Connecting...";
-
 	document.body.classList.add("dialling");
 	document.body.classList.remove("connected");
 	document.body.classList.remove("disconnected");
@@ -390,6 +389,7 @@ function dialling() {
 }
 
 function connected() {
+	displayFileCardSkeleton(true);
 	document.body.classList.remove("dialling");
 	document.body.classList.add("connected");
 	document.body.classList.remove("disconnected");
@@ -405,28 +405,35 @@ function disconnected(reason) {
 	// TODO better error types or at least hoist the strings to consts.
 	if (reason === "bad key") {
 		document.getElementById("info").innerText = "Wrong Airlock phrase.";
+		displayTryAgain("Try again");
 	} else if (reason === "bad code") {
 		document.getElementById("info").innerText = "Not a valid Airlock phrase.";
+		displayTryAgain("Try again");
 	} else if (reason === "no such slot") {
-		document.getElementById("info").innerText = "No such slot. The phrase might have expired.";
+		document.getElementById("info").innerText = "Oops, that didn't work.\nYour secret phrase might have expired.";
+		displayTryAgain("Try again");
 	} else if (reason === "timed out") {
 		document.getElementById("info").innerText = "Wormhole expired.";
+		displayTryAgain("Try again");
 	} else if (reason === "could not connect to signalling server") {
 		document.getElementById("info").innerText = "Could not reach the signalling server. Refresh page and try again.";
-
+		displayTryAgain("Try again");
 	} else if (reason === "webrtc connection closed") {
-		document.getElementById("info").innerText = "File successfully downloaded.";
+		document.getElementById("info").innerText = "Download complete";
+		displayTryAgain("Receive another file");
 	} else if (reason === "webrtc connection failed") {
 		document.getElementById("info").innerText = "Network error.";
-
+		displayTryAgain("Try again");
 	} else if (reason === "datachannel closed") {
-		document.getElementById("info").innerText = "File successfully downloaded.";
+		document.getElementById("info").innerText = "Download complete";
+		displayTryAgain("Receive another file");
 	} else if (reason === "webrtc connection failed") {
 		document.getElementById("info").innerText = "Network error.";
-
+		displayTryAgain("Try again");
 	} else {
 		document.getElementById("info").innerText = "Could not connect.";
 		console.log(reason);
+		displayTryAgain("Try again");
 	}
 
 	document.body.classList.remove("dialling");
@@ -502,6 +509,7 @@ function hashchange() {
 
 //This function will insert a list item with the desired UI according to the figma designs
 function insertListItem(fileName, fileSize) {
+	displayFileCardSkeleton(false);
 	const sizeString = formatSize(fileSize) || "0 B"
 	const transfersList = document.getElementById("transfers");
     if (transfersList === null || transfersList === undefined) {
@@ -534,6 +542,32 @@ function codechange() {
     else {
         setDialButtonEnabled(true);
     }
+}
+
+function onRetry() {
+	const docBody = document.body;
+	docBody.classList.remove("disconnected");
+	docBody.classList.remove("error");
+	console.log("REMOVED DISCONNECTED");
+	document.getElementById("retry").classList.add("invisible");
+}
+
+function displayTryAgain(buttonText) {
+	const tryAgainButton = document.getElementById("retry");
+	tryAgainButton.classList.remove("invisible");
+	tryAgainButton.value = buttonText;
+}
+
+function displayFileCardSkeleton(display) {
+	const fileCard = document.getElementById("list-item");
+	const skeletonFileCard = document.getElementById("list-item-skeleton");
+	if (display) {
+		fileCard.classList.add("collapsed");
+		skeletonFileCard.classList.remove("collapsed");
+	} else {
+		skeletonFileCard.classList.add("collapsed");
+		fileCard.classList.remove("collapsed");
+	}
 }
 
 function autocompletehint() {
@@ -703,6 +737,7 @@ async function wasmready() {
     document.getElementById("magiccode").addEventListener("blur", displayInputLabel);
 	document.getElementById("main").addEventListener("submit", preventdefault);
 	document.getElementById("main").addEventListener("submit", connect);
+	document.getElementById("retry").addEventListener("click", onRetry);
 	document.body.addEventListener("drop", preventdefault);
 	document.body.addEventListener("dragenter", preventdefault);
 	document.body.addEventListener("dragover", preventdefault);
