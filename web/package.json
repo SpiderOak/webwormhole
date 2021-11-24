@@ -12,9 +12,6 @@
         "wasm_exec.js"
       ]
     },
-    "root": true,
-    "scripts": {
-      "generate-disclaimer": "./scripts/disclaimer.sh"
-    }
+    "root": true
   }
 }
