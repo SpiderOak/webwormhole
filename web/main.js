@@ -228,6 +228,7 @@ function triggerDownload(receiving) {
 }
 
 function receive(e) {
+	const progressView = document.getElementById("progress");
 	if (!receiving) {
 		receiving = JSON.parse(new TextDecoder("utf8").decode(e.data));
 		receiving.id = `${Math.random().toString(16).substring(2)}-${encodeURIComponent(
@@ -239,24 +240,13 @@ function receive(e) {
 		}
 
 		if (receiving.type == "application/webwormhole-text") {
-			receiving.pre = document.createElement("pre");
-			receiving.pre.appendChild(document.createTextNode(`${receiving.name}`));
-			receiving.li = document.createElement("li");
-			receiving.li.appendChild(receiving.pre);
-			receiving.li.classList.add("download");
-			document.getElementById("transfers").appendChild(receiving.li);
+
+			insertListItem(receiving.name, receiving.size);
 			receiving = null;
 			return;
 		}
 
-		receiving.li = document.createElement("li");
-		receiving.a = document.createElement("a");
-		receiving.li.appendChild(receiving.a);
-		receiving.a.appendChild(document.createTextNode(`${receiving.name}`));
-		receiving.li.classList.add("download");
-		receiving.progress = document.createElement("progress");
-		receiving.li.appendChild(receiving.progress);
-		document.getElementById("transfers").appendChild(receiving.li);
+		insertListItem(receiving.name, receiving.size, () => triggerDownload(receiving));
 
 		if (serviceworker) {
 			serviceworker.postMessage({
@@ -297,7 +287,7 @@ function receive(e) {
 	}
 
 	receiving.offset += chunkSize;
-	receiving.progress.value = receiving.offset / receiving.size;
+	progressView.value = receiving.offset / receiving.size;
 
 	if (receiving.offset === receiving.size) {
 		if (serviceworker) {
@@ -306,7 +296,6 @@ function receive(e) {
 			triggerDownload(receiving);
 		}
 
-		receiving.li.removeChild(receiving.progress);
 		receiving = null;
 	}
 }
@@ -379,33 +368,28 @@ async function connect() {
 		document.getElementById("magiccode").title = encodedfp.substring(
 			encodedfp.indexOf("-") + 1,
 		);
-		document.body.style.backgroundColor = `var(--palette-${fingerprint[0]%8})`;
 	} catch (err) {
 		disconnected(err);
 	}
 }
 
 function waiting() {
-	document.getElementById("info").innerText = "Waiting for the other side to join by typing the wormhole phrase, opening this URL, or scanning the QR code.";
+	document.getElementById("info").innerText = "Waiting for the other side to join by typing the Airlock phrase, opening this URL, or scanning the QR code.";
 }
 
 function dialling() {
 	document.getElementById("info").innerText = "Connecting...";
-
 	document.body.classList.add("dialling");
 	document.body.classList.remove("connected");
 	document.body.classList.remove("disconnected");
 
-	document.getElementById("filepicker").disabled = false;
-	document.getElementById("clipboard").disabled = false || hacks.noclipboardapi;
 	document.getElementById("dial").disabled = true;
 	document.getElementById("magiccode").readOnly = true;
 	document.body.addEventListener("paste", pasteEvent);
 }
 
 function connected() {
-	document.getElementById("info").innerText = "";
-
+	displayFileCardSkeleton(true);
 	document.body.classList.remove("dialling");
 	document.body.classList.add("connected");
 	document.body.classList.remove("disconnected");
@@ -420,43 +404,47 @@ function disconnected(reason) {
 
 	// TODO better error types or at least hoist the strings to consts.
 	if (reason === "bad key") {
-		document.getElementById("info").innerText = "Wrong wormhole phrase.";
+		document.getElementById("info").innerText = "Wrong Airlock phrase.";
+		displayTryAgain("Try again");
 	} else if (reason === "bad code") {
-		document.getElementById("info").innerText = "Not a valid wormhole phrase.";
+		document.getElementById("info").innerText = "Not a valid Airlock phrase.";
+		displayTryAgain("Try again");
 	} else if (reason === "no such slot") {
-		document.getElementById("info").innerText = "No such slot. The wormhole might have expired.";
+		document.getElementById("info").innerText = "Oops, that didn't work.\nYour secret phrase might have expired.";
+		displayTryAgain("Try again");
 	} else if (reason === "timed out") {
 		document.getElementById("info").innerText = "Wormhole expired.";
+		displayTryAgain("Try again");
 	} else if (reason === "could not connect to signalling server") {
 		document.getElementById("info").innerText = "Could not reach the signalling server. Refresh page and try again.";
-
+		displayTryAgain("Try again");
 	} else if (reason === "webrtc connection closed") {
-		document.getElementById("info").innerText = "Disconnected.";
+		document.getElementById("info").innerText = "Download complete";
+		displayTryAgain("Receive another file");
 	} else if (reason === "webrtc connection failed") {
 		document.getElementById("info").innerText = "Network error.";
-
+		displayTryAgain("Try again");
 	} else if (reason === "datachannel closed") {
-		document.getElementById("info").innerText = "Disconnected.";
+		document.getElementById("info").innerText = "Download complete";
+		displayTryAgain("Receive another file");
 	} else if (reason === "webrtc connection failed") {
 		document.getElementById("info").innerText = "Network error.";
-
+		displayTryAgain("Try again");
 	} else {
 		document.getElementById("info").innerText = "Could not connect.";
 		console.log(reason);
+		displayTryAgain("Try again");
 	}
 
 	document.body.classList.remove("dialling");
 	document.body.classList.remove("connected");
 	document.body.classList.add("disconnected");
 
-	document.getElementById("filepicker").disabled = true;
-	document.getElementById("clipboard").disabled = true;
 	document.body.removeEventListener("paste", pasteEvent);
 	document.getElementById("dial").disabled = false;
 	document.getElementById("magiccode").readOnly = false;
 	document.getElementById("magiccode").value = "";
 	codechange();
-	updateqr("");
 
 	location.hash = "";
 
@@ -480,6 +468,15 @@ function unhighlight() {
 function preventdefault(e) {
 	e.preventDefault();
 	e.stopPropagation();
+}
+
+function displayInputLabel() {
+	const inputLabel = document.getElementById("input-label");
+    if (document.activeElement === document.getElementById("magiccode")) {
+        inputLabel.classList.remove("invisible");
+    } else {
+        inputLabel.classList.add("invisible");
+    }
 }
 
 async function copyurl() {
@@ -510,11 +507,62 @@ function hashchange() {
 	}
 }
 
+//This function will insert a list item with the desired UI according to the figma designs
+function insertListItem(fileName, fileSize) {
+	displayFileCardSkeleton(false);
+	const sizeString = formatSize(fileSize) || "0 B"
+	const transfersList = document.getElementById("transfers");
+    if (transfersList === null || transfersList === undefined) {
+        console.error("TRANSFER LIST", "was not initialized");
+        return;
+    }
+    const fileTitle = document.getElementById("file-title");
+    const fileData = document.getElementById("file-data");
+    fileTitle.textContent = fileName;
+    fileData.textContent = sizeString;
+	document.getElementById("info").innerText = "";
+}
+
+
+function setDialButtonEnabled(enable) {
+	const dialButton = document.getElementById("dial");
+    if (enable) {
+        dialButton.disabled = false;
+        dialButton.hidden = false;
+    } else {
+        dialButton.disabled = true;
+        dialButton.hidden = false;
+    }
+}
+
 function codechange() {
 	if (document.getElementById("magiccode").value === "") {
-		document.getElementById("dial").value = "CREATE WORMHOLE";
+        setDialButtonEnabled(false);
+    }
+    else {
+        setDialButtonEnabled(true);
+    }
+}
+
+function onRetry() {
+	location.reload();
+}
+
+function displayTryAgain(buttonText) {
+	const tryAgainButton = document.getElementById("retry");
+	tryAgainButton.classList.remove("invisible");
+	tryAgainButton.value = buttonText;
+}
+
+function displayFileCardSkeleton(display) {
+	const fileCard = document.getElementById("list-item");
+	const skeletonFileCard = document.getElementById("list-item-skeleton");
+	if (display) {
+		fileCard.classList.add("collapsed");
+		skeletonFileCard.classList.remove("collapsed");
 	} else {
-		document.getElementById("dial").value = "JOIN WORMHOLE";
+		skeletonFileCard.classList.add("collapsed");
+		fileCard.classList.remove("collapsed");
 	}
 }
 
@@ -676,19 +724,16 @@ async function wasmready() {
 		document.body.classList.add("error");
 		return;
 	}
-
 	// Install event handlers. If we start to allow queueing files before
 	// connections we might want to move these into domready so as to not
 	// block them.
 	window.addEventListener("hashchange", hashchange);
 	document.getElementById("magiccode").addEventListener("input", codechange);
-	document.getElementById("magiccode").addEventListener("keydown", autocomplete);
-	document.getElementById("magiccode").addEventListener("input", autocompletehint);
-	document.getElementById("filepicker").addEventListener("change", pick);
-	document.getElementById("clipboard").addEventListener("click", pasteClipboard);
+	document.getElementById("magiccode").addEventListener("focus", displayInputLabel);
+    document.getElementById("magiccode").addEventListener("blur", displayInputLabel);
 	document.getElementById("main").addEventListener("submit", preventdefault);
 	document.getElementById("main").addEventListener("submit", connect);
-	document.getElementById("qr").addEventListener("dblclick", copyurl);
+	document.getElementById("retry").addEventListener("click", onRetry);
 	document.body.addEventListener("drop", preventdefault);
 	document.body.addEventListener("dragenter", preventdefault);
 	document.body.addEventListener("dragover", preventdefault);
@@ -707,6 +752,9 @@ async function wasmready() {
 	document.getElementById("dial").disabled = false;
 
 	if (!hacks.noautoconnect && document.getElementById("magiccode").value !== "") {
-		connect();
-	}
+        setDialButtonEnabled(true);
+        connect();
+    } else {
+        setDialButtonEnabled(false);
+    }
 })();

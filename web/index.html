@@ -4,27 +4,135 @@
 <meta name="description" content="Send files from one place to another." />
 <meta name="go-import" content="webwormhole.io git https://github.com/saljam/webwormhole" />
 <meta name="viewport" content="width=device-width, height=device-height" />
-<link rel="icon" href="icon.svg" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" href="icon192.png" />
+<link rel="apple-touch-icon" href="icon192.png">
 <link rel="manifest" href="/pwa.json">
 <link rel="stylesheet" href="style.css" />
+<script src="utils/format-file-size.js"></script>
 <script src="wasm_exec.js"></script>
 <script src="webwormhole.js"></script>
 <script src="main.js"></script>
-<title>WebWormhole</title>
+<title>SpiderOak Airlock</title>
 <body>
 <form id="main" role="main">
-<p id="info">WebWormhole lets you send files from one computer to another.</p>
-<div id="top">
-Drag and drop, <label id="filepicker-wrap" class="button">OPEN<input type="file" id="filepicker" disabled /></label>, or <input type="button" id="clipboard" class="button" value="PASTE" disabled /> files and text to send.
+<div class="header">
+  <img class="logo" src="logo.svg" alt="CrossClave" />
 </div>
-<ul id="transfers"></ul>
+<p id="hint">Recieve a file with end-to-end<br />encrypted magic</p>
+<img id="receive-image" src="receive-file.png" alt="CrossClave" />
+<ul id="transfers">
+  <li id="list-item">
+    <div id="list-item-container">
+      <img id="file-image" class="file" src="./assets/text-file.svg" alt="File"/>
+      <div class="data">
+        <span id="file-title" class="file-text"></span>
+        <span id="file-data"></span>
+      </div>
+      <img id="download-button" src="download_icon.png" alt="download..."/>
+    </div>
+    <progress id="progress"></progress>
+  </li>
+
+  <li id="list-item-skeleton">
+    <div id="list-item-container">
+      <svg
+        role="img"
+        width="280"
+        height="70"
+        aria-labelledby="loading-aria"
+        viewBox="0 0 280 70"
+        preserveAspectRatio="none"
+      >
+        <title id="loading-aria">Loading...</title>
+        <rect
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          clip-path="url(#clip-path)"
+          class="rect-class"
+        ></rect>
+        <defs>
+          <clipPath id="clip-path">
+              <rect x="71" y="9" rx="10" ry="10" width="166" height="21" /> 
+              <rect x="72" y="39" rx="6" ry="6" width="57" height="13" /> 
+              <rect x="138" y="39" rx="6" ry="6" width="37" height="13" /> 
+              <rect x="19" y="17" rx="3" ry="3" width="28" height="34" />
+          </clipPath>
+          <linearGradient id="fill">
+            <stop
+              offset="0.599964"
+              stop-color="#f3f3f3"
+              stop-opacity="1"
+            >
+              <animate
+                attributeName="offset"
+                values="-2; -2; 1"
+                keyTimes="0; 0.25; 1"
+                dur="2s"
+                repeatCount="indefinite"
+              ></animate>
+            </stop>
+            <stop
+              offset="1.59996"
+              stop-color="#ecebeb"
+              stop-opacity="1"
+            >
+              <animate
+                attributeName="offset"
+                values="-1; -1; 2"
+                keyTimes="0; 0.25; 1"
+                dur="2s"
+                repeatCount="indefinite"
+              ></animate>
+            </stop>
+            <stop
+              offset="2.59996"
+              stop-color="#f3f3f3"
+              stop-opacity="1"
+            >
+              <animate
+                attributeName="offset"
+                values="0; 0; 3"
+                keyTimes="0; 0.25; 1"
+                dur="2s"
+                repeatCount="indefinite"
+              ></animate>
+            </stop>
+          </linearGradient>
+        </defs>
+      </svg>
+  </li>
+</ul>
 <div id="prompt">
-<p>Type a wormhole's phrase to join it, or leave empty to create a new one.</p>
-<img id="qr" />
-<input type="text" id="magiccode" autocomplete="off" autofocus title="wormhole phrase" placeholder="wormhole phrase" />
-<input type="submit" id="dial" class="button" value="LOADING..." disabled />
-<span id="autocomplete"></span>
+<div class="group">
+  <label id="input-label">SECRET PHRASE</label>
+  <input
+    type="text"
+    id="magiccode"
+    autocomplete="off"
+    autofocus
+    title="secret phrase"
+    placeholder="Type a secret phrase to start…"
+  />
 </div>
+<input
+  type="submit"
+  id="dial"
+  class="button"
+  value="Get file"
+  disabled
+/>
+</div>
+</div>
+<span id="info">Connecting...</span>
+<input
+  type="submit"
+  id="retry"
+  class="retry invisible"
+/>
 </form>
 </body>
 </html>
